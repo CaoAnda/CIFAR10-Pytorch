@@ -1,0 +1,9 @@
+{
+    "device": "cuda:0",
+    "batch_size": 128,
+    "epochs": 40,
+    "lr": 0.005,
+    "seed": 3407,
+    "shortcut_level": 1,
+    "output": true
+}
