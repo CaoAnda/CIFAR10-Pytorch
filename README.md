@@ -28,10 +28,10 @@ I searched all super-parameters to find the best version of each model structure
 
 | **Shortcut Level** | **Acc** |
 |:------------------:|:-------:|
-| 1                  | 0.9127  |
+| 1(baseline)        | 0.9127  |
 | 2                  |**0.9169**|
 | 3                  | 0.915   |
 
 # Conclusion
 
-From the experiment result, we can see our change on the model improves its performance. 
+From the experiment result, we can see our change on the model improves its performance. Due to its character of residual, I called it **`Res²Net`** for the model of 2 shortcut-level.
