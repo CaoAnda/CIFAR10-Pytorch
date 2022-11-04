@@ -1,34 +1,61 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import torch
-from torchvision.models import resnet18
 from dataset import get_dataset_loader
 from torch import nn
 from tqdm import tqdm
+import time
+import os
+import json
 
+from config import get_args
+
+opt = get_args()
 # 设置随机种子
 import random
-seed = 3407
+
+from net import MyNet
+seed = opt.seed
 torch.manual_seed(seed)
 np.random.seed(seed)
 random.seed(seed)
 
 if __name__ == '__main__':
     dataset_path = './cifar10'
-    train_loader, test_loader = get_dataset_loader(dataset_path, batch_size=256)
+    # input_shape = (3, 32, 32)
+    train_loader, test_loader = get_dataset_loader(dataset_path, batch_size=opt.batch_size)
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device(opt.device if torch.cuda.is_available() else 'cpu')
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.benchmark = True
+        torch.backends.cudnn.deterministic = True
 
-    epoch_num = 2
+    epoch_num = opt.epochs
+    shortcut_level = opt.shortcut_level
 
-    model = resnet18().to(device)
+    model = MyNet(
+        [2, 2, 2, 2],
+        num_classes=10,
+        shortcut_level=shortcut_level
+    ).to(device)
+
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
 
     train_loss = []
     val_loss = []
     train_epochs_loss = []
     val_epochs_loss = []
+    val_epochs_acc = []
+
+    now_time = time.strftime('%m-%d_%H-%M-%S', time.localtime())
+    log_dir = './logs/%s'%now_time
+    os.makedirs(log_dir)
+
+    with open(os.path.join(log_dir, 'config'), 'w+') as file:
+        json.dump(opt.__dict__, file, indent=4)
 
     for epoch in range(epoch_num):
         model.train()
@@ -63,21 +90,24 @@ if __name__ == '__main__':
                 total += labels.size(0)
                 correct += (preds == labels).sum().item()
             val_epochs_loss.append(np.average(val_loss))
+            val_epochs_acc.append(np.average(correct / total))
             print('loss:{}\tacc:{}%'.format(np.average(val_loss), 100 * correct / total))
         
         print()
-    
-    plt.figure(figsize=(12,4))
-    plt.subplot(121)
-    plt.plot(train_loss[:])
-    plt.title("train_loss")
-    plt.subplot(122)
-    plt.plot(train_epochs_loss,'-o',label="train_loss")
-    plt.plot(val_epochs_loss,'-o',label="valid_loss")
-    plt.title("epochs_loss")
-    plt.legend()
-    plt.savefig('analys.png')
-    plt.show()
 
+        plt.figure(figsize=(12,4))
+        plt.subplot(121)
+        plt.plot(val_epochs_acc, '-s')
+        plt.title("val_epochs_acc")
+        plt.subplot(122)
+        plt.plot(train_epochs_loss, '-o', label="train_loss")
+        plt.plot(val_epochs_loss, '-o', label="valid_loss")
+        plt.title("epochs_loss")
+        plt.legend()
+        plt.savefig(os.path.join(log_dir,'analys.png'))
+        plt.show()
+        plt.close()
 
-
+        with open(os.path.join(log_dir, 'log.txt'), 'a+') as file:
+            file.write('\t'.join([str(val_epochs_acc[-1]), str(train_epochs_loss[-1]), str(val_epochs_loss[-1])]))
+            file.write('\n')
