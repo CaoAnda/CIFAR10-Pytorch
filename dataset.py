@@ -47,12 +47,12 @@ def get_dataset_loader(dataset_path, batch_size):
 
 if __name__ == '__main__':
     cifar10path = './cifar10'
-    train_loader, test_loader = get_dataset_loader(cifar10path, 4)
+    train_loader, test_loader = get_dataset_loader(cifar10path, 12)
 
-    data_iter = iter(train_loader)
+    data_iter = iter(test_loader)
     images, labels = next(data_iter)
 
-    index = 1
+    index = 10
 
     image = images[index].numpy()
     label = labels[index].numpy()

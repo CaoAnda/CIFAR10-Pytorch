@@ -1,4 +1,5 @@
 from torch import nn
+import torch
 
 class Block(nn.Module):
     def __init__(self, in_channels, out_channels, stride) -> None:
@@ -102,3 +103,7 @@ class MyNet(nn.Module):
         out = out.reshape(out.size(0), -1)
 
         return self.fc(out)
+
+if __name__ == '__main__':
+    model = MyNet([2, 2, 2, 2], 10, 1)
+    torch.save(model, './model.pt')
