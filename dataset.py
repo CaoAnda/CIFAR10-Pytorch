@@ -21,13 +21,13 @@ def get_dataset_loader(dataset_path, batch_size):
         root=dataset_path,
         train=True,
         transform=transform,
-        # download=True,
+        download=True
     )
     test_dataset = torchvision.datasets.CIFAR10(
         root=dataset_path,
         train=False,
         transform=test_transform,
-        # download=True
+        download=True
     )
 
     train_loader = torch.utils.data.DataLoader(
