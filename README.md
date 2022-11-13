@@ -32,6 +32,22 @@ I searched all super-parameters to find the best version of each model structure
 | 2                  |**0.9169**|
 | 3                  | 0.915   |
 
+# Tuning hyper-parameter
+
+some tuning logs are recorded in [model_compare.csv](./model_compare.csv) and [logs](./logs)
+
+*analysis:*
+
+batch size (2, 4, 8, 16, 32, 64, 128): 
+- Speed up the training; 
+- The direction of gradient descent is more accurate
+
+learning rate: the speed of gradient descent, usually are (0.1, 0.01, 0.001, 0.0001). Many models use 5e-3 as their initial learning rate.
+
+
+
+
+
 # Conclusion
 
 From the experiment result, we can see our change on the model improves its performance. Due to its character of residual, I called it **`Res²Net`** for the model of 2 shortcut-level.
